@@ -32,9 +32,20 @@ function Tabs() {
 
           return <Icon name={iconName} size={size} color={color} />;
         },
+        headerStyle: {
+          backgroundColor: 'black',
+          borderBottomColor: '#333',
+          borderBottomWidth: 1,
+          elevation: 0,
+          shadowOpacity: 0,
+        },
+        headerTintColor: 'white',
+        headerTitleStyle: {
+          fontWeight: 'bold',
+        },
         tabBarActiveTintColor: 'tomato',
-        tabBarInactiveTintColor: 'gray',
-        tabBarStyle: [{ display: 'flex' }, null],
+        tabBarInactiveTintColor: 'white',
+        tabBarStyle: [{ display: 'flex', backgroundColor: 'black', borderTopColor: '#333', }, null],
       })}
     >
       <Tab.Screen name="Home" component={Home} />
