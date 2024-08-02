@@ -18,6 +18,7 @@ const Register = ({ navigation }) => {
       try {
         // create user account
         const response = await createUserWithEmailAndPassword(FIREBASE_AUTH, email, password);
+        
         // get user object
         const user = response.user;
 

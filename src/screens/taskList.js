@@ -2,12 +2,12 @@ import React, { useState, useCallback } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, ScrollView, Alert, RefreshControl } from 'react-native';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../firebase/firebaseConfig';
 import { collection, query, where, getDocs } from 'firebase/firestore';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation  } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { categoryIcons, priorityLevelColors } from '../constants';
 
 
-const Details = () => {
+const TaskList = ({ navigation }) => {
   const [todayTasks, setTodayTasks] = useState([]);
   const [overdueTasks, setOverdueTasks] = useState([]);
   const [allTasks, setAllTasks] = useState([]);
@@ -25,12 +25,12 @@ const Details = () => {
         return;
       }
 
-      console.log('Fetching tasks for user:', user.uid);
+      console.log('user:', user.uid);
       const tasksRef = collection(FIRESTORE_DB, 'tasks');
       const q = query(tasksRef, where('userId', '==', user.uid));
       const querySnapshot = await getDocs(q);
 
-      console.log('Number of documents retrieved:', querySnapshot.size);
+      console.log('documents retrieved:', querySnapshot.size);
 
       const today = new Date();
       today.setHours(0, 0, 0, 0);
@@ -81,17 +81,17 @@ const Details = () => {
 
 
   const renderTask = ({ item }) => (
-    <View style={styles.taskItem}>
+    <TouchableOpacity style={styles.taskItem} onPress={() => navigation.navigate('TaskDetails', { taskId: item.id })}>
       <View style={[styles.priorityLevelColors, { backgroundColor: priorityLevelColors[item.priority] }]} />
       <Text style={styles.taskText}>{item.title}</Text>
-      <TouchableOpacity style={styles.iconButton}>
+      <View style={styles.iconButton}>
       <Icon 
           name={categoryIcons[item.category]} 
           size={20} 
           color="#fff" 
         />
-      </TouchableOpacity>
-    </View>
+      </View>
+    </TouchableOpacity>
   );
 
   const toggleTaskList = (section) => {
@@ -230,4 +230,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Details;
+export default TaskList;

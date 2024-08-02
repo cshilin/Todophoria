@@ -5,7 +5,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-import { Home, Search, AddTask, Details, Settings, Onboard, Register, Login } from './src/screens';
+import { Home, Search, AddTask, TaskList, Settings, Onboard, Register, Login, TaskDetails } from './src/screens';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -51,7 +51,7 @@ function Tabs() {
       <Tab.Screen name="Home" component={Home} />
       <Tab.Screen name="Search" component={Search} />
       <Tab.Screen name="Add Task" component={AddTask}/>
-      <Tab.Screen name="Tasks" component={Details} />
+      <Tab.Screen name="Tasks" component={TaskList} />
       <Tab.Screen name="Settings" component={Settings} />
     </Tab.Navigator>
   );
@@ -65,6 +65,7 @@ function App() {
         <Stack.Screen name="Register" component={Register} />
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="Main" component={Tabs} />
+        <Stack.Screen name="TaskDetails" component={TaskDetails} />
       </Stack.Navigator>
     </NavigationContainer>
   );
