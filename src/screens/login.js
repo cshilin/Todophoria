@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, TextInput, StyleSheet, TouchableOpacity, Text, Image, SafeAreaView, Alert } from 'react-native';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { FIREBASE_AUTH } from '../firebase/firebaseConfig';
+import { FIREBASE_AUTH } from '../services/firebaseConfig';
 import Logo from '../../assets/logo.png';
 
 const Login = ({ navigation }) => {

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Modal } from 'react-native';
-import { FIREBASE_AUTH, FIRESTORE_DB } from '../firebase/firebaseConfig';
+import { FIREBASE_AUTH, FIRESTORE_DB } from '../services/firebaseConfig';
 import { collection, addDoc } from 'firebase/firestore';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import DateTimePickerModal from "react-native-modal-datetime-picker";

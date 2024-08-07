@@ -12,7 +12,7 @@ import {
   Platform,
   Modal,
 } from 'react-native';
-import { FIREBASE_AUTH, FIRESTORE_DB } from '../firebase/firebaseConfig';
+import { FIREBASE_AUTH, FIRESTORE_DB } from '../services/firebaseConfig';
 import { doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
@@ -241,10 +241,19 @@ const TaskDetails = ({ route, navigation }) => {
 
           {!isEditing && (
             <View style={styles.actionButtonsContainer}>
-              <TouchableOpacity style={styles.completeButton} onPress={handleCompleteTask}>
-                <Icon name="check-circle" size={20} color="#FFFFFF" />
-                <Text style={styles.buttonText}>Complete</Text>
-              </TouchableOpacity>
+
+              {task.completed ? (
+                <View style={styles.taskCompletedContainer}>
+                  <Icon name="check-circle" size={20} color="#4CAF50" />
+                  <Text style={styles.taskCompletedText}>Task Completed</Text>
+                </View>
+              ) : (
+                <TouchableOpacity style={styles.completeButton} onPress={handleCompleteTask}>
+                  <Icon name="check-circle" size={20} color="#FFFFFF" />
+                  <Text style={styles.buttonText}>Complete</Text>
+                </TouchableOpacity>
+              )}
+
               <TouchableOpacity style={styles.deleteButton} onPress={handleDeleteTask}>
                 <Icon name="trash" size={20} color="#FFFFFF" />
                 <Text style={styles.buttonText}>Delete</Text>
@@ -409,8 +418,23 @@ const styles = StyleSheet.create({
   actionButtonsContainer: {
     flexDirection: 'column',
   },
+  taskCompletedContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#0d8722',
+    padding: 16,
+    borderRadius: 10,
+    marginBottom: 20,
+    justifyContent: 'center',
+  },
+  taskCompletedText: {
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+    fontSize: 16,
+    marginLeft: 10,
+  },
   completeButton: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#0d8722',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -436,6 +460,7 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontWeight: 'bold',
     marginLeft: 10,
+    fontSize: 16,
   },
   loadingContainer: {
     flex: 1,

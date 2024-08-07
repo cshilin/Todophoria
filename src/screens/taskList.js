@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, ScrollView, Alert, RefreshControl } from 'react-native';
-import { FIREBASE_AUTH, FIRESTORE_DB } from '../firebase/firebaseConfig';
+import { FIREBASE_AUTH, FIRESTORE_DB } from '../services/firebaseConfig';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { useFocusEffect, useNavigation  } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';

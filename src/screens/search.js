@@ -9,7 +9,7 @@ import {
   SafeAreaView 
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { FIREBASE_AUTH, FIRESTORE_DB } from '../firebase/firebaseConfig';
+import { FIREBASE_AUTH, FIRESTORE_DB } from '../services/firebaseConfig';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { categoryIcons, priorityLevelColors } from '../constants';
