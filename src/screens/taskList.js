@@ -10,11 +10,13 @@ import { categoryIcons, priorityLevelColors } from '../constants';
 const TaskList = ({ navigation }) => {
   const [todayTasks, setTodayTasks] = useState([]);
   const [overdueTasks, setOverdueTasks] = useState([]);
+  const [completedTasks, setCompletedTasks] = useState([]);
   const [allTasks, setAllTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [showTodayTasks, setShowTodayTasks] = useState(true);
   const [showOverdueTasks, setShowOverdueTasks] = useState(true);
+  const [showCompletedTasks, setShowCompletedTasks] = useState(true);
   const [showAllTasks, setShowAllTasks] = useState(true);
 
   const fetchTasks = async () => {
@@ -37,13 +39,16 @@ const TaskList = ({ navigation }) => {
 
       const todayTasksArr = [];
       const overdueTasksArr = [];
+      const completedTasksArr = [];
       const allTasksArr = [];
 
       querySnapshot.forEach((doc) => {
         const task = { id: doc.id, ...doc.data() };
         const taskDate = new Date(task.dueDate);
         allTasksArr.push(task);
-        if (taskDate < today) {
+        if (task.completed) {
+          completedTasksArr.push(task);
+        } else if (taskDate < today) {
           overdueTasksArr.push(task);
         } else if (taskDate.getDate() === today.getDate()) {
           todayTasksArr.push(task);
@@ -52,6 +57,7 @@ const TaskList = ({ navigation }) => {
 
       setTodayTasks(todayTasksArr);
       setOverdueTasks(overdueTasksArr);
+      setCompletedTasks(completedTasksArr);
       setAllTasks(allTasksArr);
 
     } catch (error) {
@@ -85,12 +91,9 @@ const TaskList = ({ navigation }) => {
       <View style={[styles.priorityLevelColors, { backgroundColor: priorityLevelColors[item.priority] }]} />
       <Text style={styles.taskText}>{item.title}</Text>
       <View style={styles.iconButton}>
-      <Icon 
-          name={categoryIcons[item.category]} 
-          size={20} 
-          color="#fff" 
-        />
+        <Icon name={categoryIcons[item.category]} size={20} color="#fff" />
       </View>
+      {item.completed && <Icon name="check-circle" size={20} color="#4caf50" style={styles.completedIcon} />}
     </TouchableOpacity>
   );
 
@@ -101,6 +104,9 @@ const TaskList = ({ navigation }) => {
         break;
       case 'overdue':
         setShowOverdueTasks(!showOverdueTasks);
+        break;
+      case 'completed':
+        setShowCompletedTasks(!showCompletedTasks);
         break;
       case 'all':
         setShowAllTasks(!showAllTasks);
@@ -148,6 +154,23 @@ const TaskList = ({ navigation }) => {
         {showOverdueTasks && (
           <FlatList
             data={overdueTasks}
+            renderItem={renderTask}
+            keyExtractor={(item) => item.id}
+            scrollEnabled={false}
+          />
+        )}
+      </View>
+
+      <View style={styles.section}>
+        <TouchableOpacity style={styles.sectionHeader} onPress={() => toggleTaskList('completed')}>
+          <Text style={styles.sectionTitle}>Completed Tasks</Text>
+          <Text style={styles.taskCount}>
+            {completedTasks.length}  <Icon name={showCompletedTasks ? "chevron-down" : "chevron-right"} size={16} color="#fff" />
+          </Text>
+        </TouchableOpacity>
+        {showCompletedTasks && (
+          <FlatList
+            data={completedTasks}
             renderItem={renderTask}
             keyExtractor={(item) => item.id}
             scrollEnabled={false}
@@ -218,6 +241,9 @@ const styles = StyleSheet.create({
   taskText: {
     color: '#fff',
     flex: 1,
+  },
+  completedIcon: {
+    marginLeft: 10,
   },
   iconButton: {
     padding: 4,

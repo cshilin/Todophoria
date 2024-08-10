@@ -145,6 +145,7 @@ const Home = ({ navigation }) => {
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     fetchTasks();
+    fetchWeatherData();
   }, []);
 
   return (

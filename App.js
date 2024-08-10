@@ -5,7 +5,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-import { Home, Search, AddTask, TaskList, Settings, Onboard, Register, Login, TaskDetails } from './src/screens';
+import { Home, Search, AddTask, TaskList, Settings, Onboard, Register, Login, TaskDetails, PomodoroTimer } from './src/screens';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -66,6 +66,7 @@ function App() {
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="Main" component={Tabs} />
         <Stack.Screen name="TaskDetails" component={TaskDetails} />
+        <Stack.Screen name="PomodoroTimer" component={PomodoroTimer} />
       </Stack.Navigator>
     </NavigationContainer>
   );

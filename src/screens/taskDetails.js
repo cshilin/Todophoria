@@ -21,6 +21,7 @@ import { categoryIcons, priorityLevelColors } from '../constants';
 const TaskDetails = ({ route, navigation }) => {
   const { taskId } = route.params;
   const [task, setTask] = useState(null);
+  const [originalTask, setOriginalTask] = useState(null);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [subtask, setSubtask] = useState('');
@@ -30,7 +31,7 @@ const TaskDetails = ({ route, navigation }) => {
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
-  const [originalTask, setOriginalTask] = useState(null);
+  const [rescheduleTask, setRescheduleTask] = useState(false);
 
   const categories = ['Personal', 'Work', 'Study', 'Health', 'Shopping', 'Other'];
 
@@ -67,6 +68,34 @@ const TaskDetails = ({ route, navigation }) => {
     } catch (error) {
       console.error('Error updating task:', error);
       Alert.alert('Error', 'Failed to update task. Please try again.');
+    }
+  };
+
+  const isTaskOverdue = () => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return new Date(task.dueDate) < today;
+  };
+
+  const isTaskDueToday = () => {
+    const today = new Date();
+    const taskDate = new Date(task.dueDate);
+    return today.toDateString() === taskDate.toDateString();
+  };
+
+  const handleReschedule = async (newDate) => {
+    try {
+      await updateDoc(doc(FIRESTORE_DB, 'tasks', taskId), {
+        dueDate: newDate.toISOString(),
+      });
+      setTask({ ...task, dueDate: newDate.toISOString() });
+      Alert.alert('Success', 'Task rescheduled successfully');
+      navigation.goBack();
+    } catch (error) {
+      console.error('Error rescheduling task:', error);
+      Alert.alert('Error', 'Failed to reschedule task. Please try again.');
+    } finally {
+      setRescheduleTask(false);
     }
   };
 
@@ -242,6 +271,23 @@ const TaskDetails = ({ route, navigation }) => {
           {!isEditing && (
             <View style={styles.actionButtonsContainer}>
 
+              {isTaskDueToday() && !task.completed && (
+                <TouchableOpacity
+                  style={styles.pomodoroButton}
+                  onPress={() => navigation.navigate('PomodoroTimer', { taskId: task.id, taskTitle: task.title })}
+                >
+                  <Icon name="clock-o" size={20} color="#FFFFFF" />
+                  <Text style={styles.buttonText}>Start Pomodoro</Text>
+                </TouchableOpacity>
+              )}
+
+              {isTaskOverdue() && !task.completed && (
+                <TouchableOpacity style={styles.rescheduleButton} onPress={() => setRescheduleTask(true)}>
+                  <Icon name="calendar" size={20} color="#FFFFFF" />
+                  <Text style={styles.buttonText}>Reschedule</Text>
+                </TouchableOpacity>
+              )}
+
               {task.completed ? (
                 <View style={styles.taskCompletedContainer}>
                   <Icon name="check-circle" size={20} color="#4CAF50" />
@@ -260,6 +306,17 @@ const TaskDetails = ({ route, navigation }) => {
               </TouchableOpacity>
             </View>
           )}
+
+          <DateTimePickerModal
+            isVisible={rescheduleTask}
+            mode="datetime"
+            onConfirm={(date) => {
+              handleReschedule(date)
+            }}
+            onCancel={() => setRescheduleTask(false)}
+            isDarkModeEnabled={true}
+            themeVariant="dark"
+          />
 
           {isEditing && (
             <TouchableOpacity style={styles.updateButton} onPress={handleUpdateTask}>
@@ -432,6 +489,24 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
     marginLeft: 10,
+  },
+  pomodoroButton: {
+    backgroundColor: '#c2c000',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 15,
+    borderRadius: 5,
+    marginBottom: 20,
+  },
+  rescheduleButton: {
+    backgroundColor: '#3498db',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 15,
+    borderRadius: 5,
+    marginBottom: 20,
   },
   completeButton: {
     backgroundColor: '#0d8722',
