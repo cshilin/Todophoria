@@ -1,11 +1,13 @@
-import React from 'react';
-import { SafeAreaView, StyleSheet, View, Text } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { SafeAreaView, StyleSheet, View, Text, ActivityIndicator } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import { onAuthStateChanged } from 'firebase/auth';
+import { FIREBASE_AUTH } from './src/services/firebaseConfig';
 
-import { Home, Search, AddTask, TaskList, Settings, Onboard, Register, Login, TaskDetails, PomodoroTimer } from './src/screens';
+import { Home, Search, AddTask, TaskList, Settings, Onboard, Register, Login, TaskDetails, PomodoroTimer, ChangePassword } from './src/screens';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -58,18 +60,55 @@ function Tabs() {
 }
 
 function App() {
+  const [user, setUser] = useState(null);
+  const [initializing, setInitializing] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(FIREBASE_AUTH, (user) => {
+      setUser(user);
+      if (initializing) setInitializing(false);
+    });
+
+    return unsubscribe;
+  }, []);
+
+  if (initializing) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#959595" />
+      </View>
+    );
+  }
+
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Onboard" component={Onboard} />
-        <Stack.Screen name="Register" component={Register} />
-        <Stack.Screen name="Login" component={Login} />
-        <Stack.Screen name="Main" component={Tabs} />
-        <Stack.Screen name="TaskDetails" component={TaskDetails} />
-        <Stack.Screen name="PomodoroTimer" component={PomodoroTimer} />
+        {!user ? (
+          <>
+            <Stack.Screen name="Onboard" component={Onboard} />
+            <Stack.Screen name="Register" component={Register} />
+            <Stack.Screen name="Login" component={Login} />
+          </>
+        ) : (
+          <>
+            <Stack.Screen name="Main" component={Tabs} />
+            <Stack.Screen name="TaskDetails" component={TaskDetails} />
+            <Stack.Screen name="PomodoroTimer" component={PomodoroTimer} />
+            <Stack.Screen name="ChangePassword" component={ChangePassword} />
+          </>
+        )}
       </Stack.Navigator>
     </NavigationContainer>
   );
 }
+
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#000000',
+  },
+});
 
 export default App;

@@ -21,6 +21,12 @@ const AddTask = ({ navigation }) => {
 
   const categories = ['Personal', 'Work', 'Study', 'Health', 'Shopping', 'Other'];
 
+  const formatDateTime = (date) => {
+    const formattedDate = date.toLocaleDateString();
+    const formattedTime = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return `${formattedDate} ${formattedTime}`;
+  };
+
   const handleAddTask = async () => {
     const user = FIREBASE_AUTH.currentUser;
     if (!user) {
@@ -119,7 +125,7 @@ const AddTask = ({ navigation }) => {
       <Text style={styles.displayText}>Due:</Text>
       <TouchableOpacity style={styles.dateButton} onPress={showDatePicker}>
         <Text style={styles.dateButtonText}>
-          {dueDate.toLocaleDateString()} {dueDate.toLocaleTimeString()}
+          {formatDateTime(dueDate)}
         </Text>
         <Icon name="calendar" size={20} color="#FFFFFF" />
       </TouchableOpacity>
@@ -136,7 +142,7 @@ const AddTask = ({ navigation }) => {
       <Text style={styles.displayText}>Remind Me:</Text>
       <TouchableOpacity style={styles.dateButton} onPress={showReminderPicker}>
         <Text style={styles.dateButtonText}>
-          {reminder.toLocaleDateString()} {reminder.toLocaleTimeString()}
+          {formatDateTime(reminder)}
         </Text>
         <Icon name="bell" size={20} color="#FFFFFF" />
       </TouchableOpacity>
@@ -162,18 +168,18 @@ const AddTask = ({ navigation }) => {
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            {categories.map((cat) => (
+            {categories.map((category) => (
               <TouchableOpacity
-                key={cat}
+                key={category}
                 style={styles.modalItem}
                 onPress={() => {
-                  setCategory(cat);
+                  setCategory(category);
                   setShowCategoryModal(false);
                 }}
               >
                 <View style={styles.modalItemContainer}>
-                  <Text style={styles.modalItemText}>{cat}</Text>
-                  <Icon name={categoryIcons[cat]} size={20} color="#FFFFFF" />
+                  <Text style={styles.modalItemText}>{category}</Text>
+                  <Icon name={categoryIcons[category]} size={20} color="#FFFFFF" />
                 </View>
               </TouchableOpacity>
             ))}

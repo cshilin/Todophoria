@@ -3,6 +3,8 @@ import { View, Text, StyleSheet, TouchableOpacity, Animated, Modal, TextInput, A
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {doc, updateDoc } from 'firebase/firestore';
 import { FIRESTORE_DB } from '../services/firebaseConfig';
+import { Accelerometer } from 'expo-sensors';
+import { Audio } from 'expo-av';
 
 const PomodoroTimer = ({ route, navigation }) => {
   const { taskTitle, taskId } = route.params;
@@ -14,6 +16,9 @@ const PomodoroTimer = ({ route, navigation }) => {
   const [showSettings, setShowSettings] = useState(false);
   const [tempWorkTime, setTempWorkTime] = useState('25');
   const [tempBreakTime, setTempBreakTime] = useState('5');
+  const [isDeviceStable, setIsDeviceStable] = useState(true);
+  const [transitionSound, setTransitionSound] = useState();
+  const [deviceMovedSound, setDeviceMovedSound] = useState();
 
   const animatedValue = useRef(new Animated.Value(1)).current;
 
@@ -26,7 +31,7 @@ const PomodoroTimer = ({ route, navigation }) => {
     } else if (isActive && timeLeft === 0) {
       clearInterval(interval);
       if (isWork) {
-        Alert.alert(
+        showAlertWithSound(
           "Work Session Complete!",
           "Ready to start your break?",
           [
@@ -44,10 +49,11 @@ const PomodoroTimer = ({ route, navigation }) => {
                 updateAnimatedValue(false);
               }
             }
-          ]
+          ],
+          'transition'
         );
       } else {
-        Alert.alert(
+        showAlertWithSound(
           "Break Time Over!",
           "Ready to get back to work?",
           [
@@ -65,7 +71,8 @@ const PomodoroTimer = ({ route, navigation }) => {
                 updateAnimatedValue(true);
               }
             }
-          ]
+          ],
+          'transition'
         );
       }
       setIsActive(false);
@@ -151,6 +158,86 @@ const PomodoroTimer = ({ route, navigation }) => {
         }
       ]
     );
+  };
+
+  useEffect(() => {
+    let subscription;
+    
+    const startAccelerometer = async () => {
+
+      await Accelerometer.setUpdateInterval(1000);
+      subscription = Accelerometer.addListener(accelerometerData => {
+        const { x, y, z } = accelerometerData;
+        const acceleration = Math.sqrt(x * x + y * y + z * z);
+        const isStable = acceleration > 0.95 && acceleration < 1.05;
+        
+        if (isActive && isWork && isDeviceStable && !isStable) {
+          handleDeviceMovement();
+        }
+        setIsDeviceStable(isStable);
+      });
+    };
+
+    startAccelerometer();
+
+    return () => {
+      subscription && subscription.remove();
+    };
+  }, [isActive, isWork, isDeviceStable]);
+
+  const handleDeviceMovement = () => {
+    setIsActive(false);
+    showAlertWithSound(
+      "Stay Focused!",
+      "Device moved. Remember to stay focused on your task.",
+      [
+        {
+          text: "Resume",
+          onPress: () => setIsActive(true)
+        },
+        {
+          text: "Cancel Session",
+          onPress: () => handleCancelPomodoro()
+        }
+      ],
+      'deviceMoved'
+    );
+  };
+
+  useEffect(() => {
+    return () => {
+      if (transitionSound) {
+        transitionSound.unloadAsync();
+      }
+      if (deviceMovedSound) {
+        deviceMovedSound.unloadAsync();
+      }
+    };
+  }, [transitionSound, deviceMovedSound]);
+
+  const playTransitionSound = async () => {
+    const { sound } = await Audio.Sound.createAsync(
+      require('../../assets/notificationsound.mp3')
+    );
+    setTransitionSound(sound);
+    await sound.playAsync();
+  };
+  
+  const playDeviceMovedSound = async () => {
+    const { sound } = await Audio.Sound.createAsync(
+      require('../../assets/deviceMovedSound.mp3')
+    );
+    setDeviceMovedSound(sound);
+    await sound.playAsync();
+  };
+
+  const showAlertWithSound = (title, message, buttons, soundType = 'transition') => {
+    if (soundType === 'transition') {
+      playTransitionSound();
+    } else if (soundType === 'deviceMoved') {
+      playDeviceMovedSound();
+    }
+    Alert.alert(title, message, buttons);
   };
 
   return (

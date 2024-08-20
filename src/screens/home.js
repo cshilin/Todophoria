@@ -1,8 +1,8 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, FlatList, Alert, RefreshControl, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, FlatList, Alert, RefreshControl, Image, ActivityIndicator } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../services/firebaseConfig';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs, updateDoc, doc } from 'firebase/firestore';
 import { useFocusEffect } from '@react-navigation/native';
 import { categoryIcons, priorityLevelColors } from '../constants';
 import { fetchWeather, getUserLocation } from '../services/weather';
@@ -78,6 +78,20 @@ const Home = ({ navigation }) => {
     }
   };
 
+  const handleCompleteTask = async (taskId) => {
+    try {
+      await updateDoc(doc(FIRESTORE_DB, 'tasks', taskId), {
+        completed: true,
+        completedAt: new Date().toISOString(),
+      });
+      Alert.alert('Success', 'Task marked as completed');
+      fetchTasks();
+    } catch (error) {
+      console.error('Error completing task:', error);
+      Alert.alert('Error', 'Failed to complete task. Please try again.');
+    }
+  };
+
   const getCurrentDate = () => {
     const currentDate = new Date();
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -95,7 +109,13 @@ const Home = ({ navigation }) => {
       style={styles.taskItem}
       onPress={() => navigation.navigate('TaskDetails', { taskId: item.id })}
     >
-      {/* <Icon name={item.completed ? "check-square-o" : "square-o"} size={20} color="#fff" /> */}
+      <TouchableOpacity
+        onPress={() => handleCompleteTask(item.id)}
+        style={styles.checkbox}
+      >
+        <Icon name={item.completed ? "check-square-o" : "square-o"} size={20} color="#fff" />
+      </TouchableOpacity>
+
       <View style={[styles.priorityLevelColors, { backgroundColor: priorityLevelColors[item.priority] }]} />
       <Text style={styles.taskTitle}>{item.title}</Text>
       <Icon name={categoryIcons[item.category]} size={20} color="#fff" />
@@ -106,7 +126,7 @@ const Home = ({ navigation }) => {
     return (
       <View style={styles.weatherContainer}>
       {weatherLoading ? (
-        <Text style={styles.weatherLoading}>Loading...</Text>
+        <ActivityIndicator size="large" color="#959595" />
       ) : weatherError ? (
         <Text style={styles.weatherError}>{weatherError}</Text>
       ) : weather ? (
@@ -235,11 +255,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     opacity: 0.8,
   },
-  weatherLoading: {
-    color: '#FFFFFF',
-    fontSize: 24,
-    fontStyle: 'bold',
-  },
   weatherContainer: {
     backgroundColor: '#3C4D81',
     borderRadius: 15,
@@ -333,6 +348,9 @@ const styles = StyleSheet.create({
     height: 20,
     borderRadius: 2,
     marginRight: 10,
+  },
+  checkbox: {
+    marginRight: 8,
   },
   taskItem: {
     flexDirection: 'row',

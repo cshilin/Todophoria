@@ -148,6 +148,12 @@ const TaskDetails = ({ route, navigation }) => {
     setIsEditing(false);
   };
 
+  const formatDateTimeForDisplay = (date) => {
+    const formattedDate = date.toLocaleDateString();
+    const formattedTime = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return `${formattedDate} ${formattedTime}`;
+  };
+
   if (!task) {
     return (
       <SafeAreaView style={styles.safeArea}>
@@ -198,7 +204,7 @@ const TaskDetails = ({ route, navigation }) => {
                 onPress={() => isEditing && setDatePickerVisibility(true)}
               >
                 <Text style={styles.dateButtonText}>
-                  {dueDate.toLocaleDateString()} {dueDate.toLocaleTimeString()}
+                  {formatDateTimeForDisplay(dueDate)}
                 </Text>
               </TouchableOpacity>
             </View>

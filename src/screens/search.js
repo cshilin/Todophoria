@@ -64,6 +64,14 @@ const Search = () => {
     );
   };
 
+  const clearSearchQuery = () => {
+    setSearchQuery('');
+  };
+
+  const clearAllFilters = () => {
+    setActiveFilters([]);
+  };
+
   const renderTask = ({ item }) => (
     <TouchableOpacity
       style={styles.taskItem}
@@ -95,12 +103,24 @@ const Search = () => {
           value={searchQuery}
           onChangeText={setSearchQuery}
         />
+        {searchQuery.length > 0 && (
+          <TouchableOpacity onPress={clearSearchQuery} style={styles.clearSearchText}>
+            <Icon name="times-circle" size={20} color="#999" />
+          </TouchableOpacity>
+        )}
       </View>
       <View style={styles.filtersContainer}>
         <Text style={styles.filtersTitle}>Filters:</Text>
         <View style={styles.filterChipsContainer}>
           {priorities.map((priority, index) => renderFilterChip(priority, activeFilters.includes(priority), `priority-${index}`))}
           {categories.map((category, index) => renderFilterChip(category, activeFilters.includes(category), `category-${index}`))}
+
+          <TouchableOpacity
+            style={styles.clearAllFilters}
+            onPress={clearAllFilters}
+          >
+            <Text style={styles.clearAllFiltersText}>Clear All</Text>
+          </TouchableOpacity>
         </View>
       </View>
       <FlatList
@@ -137,6 +157,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     padding: 10,
   },
+  clearSearchText: {
+    padding: 5,
+  },
   filtersContainer: {
     margin: 8,
   },
@@ -168,6 +191,20 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   activeFilterChipText: {
+    fontWeight: 'bold',
+  },
+  clearAllFilters: {
+    borderColor: '#FF0000',
+    borderWidth: 1,
+    borderRadius: 15,
+    padding: 5,
+    marginTop: 8,
+    width: '100%',
+    alignItems: 'center',
+  },
+  clearAllFiltersText: {
+    color: '#FF0000',
+    fontSize: 14,
     fontWeight: 'bold',
   },
   taskList: {

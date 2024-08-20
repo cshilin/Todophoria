@@ -8,3 +8,4 @@ export { default as Settings } from './settings';
 export { default as Onboard } from './onboard';
 export { default as Register } from './register';
 export { default as Login } from './login';
+export { default as ChangePassword } from './changePassword';

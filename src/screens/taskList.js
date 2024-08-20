@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, ScrollView, Alert, RefreshControl } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, ScrollView, Alert, RefreshControl, ActivityIndicator } from 'react-native';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../services/firebaseConfig';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs, updateDoc, doc } from 'firebase/firestore';
 import { useFocusEffect, useNavigation  } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { categoryIcons, priorityLevelColors } from '../constants';
@@ -69,6 +69,20 @@ const TaskList = ({ navigation }) => {
     }
   };
 
+  const handleCompleteTask = async (taskId) => {
+    try {
+      await updateDoc(doc(FIRESTORE_DB, 'tasks', taskId), {
+        completed: true,
+        completedAt: new Date().toISOString(),
+      });
+      Alert.alert('Success', 'Task marked as completed');
+      fetchTasks();
+    } catch (error) {
+      console.error('Error completing task:', error);
+      Alert.alert('Error', 'Failed to complete task. Please try again.');
+    }
+  };
+
   // use useFocusEffect here to refresh data (after user adds a task) when this screen is selected
   // this will ensure that the task list is most up-to-date and prevent unneccessary rendering that can cause performance issues
   useFocusEffect(
@@ -88,12 +102,19 @@ const TaskList = ({ navigation }) => {
 
   const renderTask = ({ item }) => (
     <TouchableOpacity style={styles.taskItem} onPress={() => navigation.navigate('TaskDetails', { taskId: item.id })}>
+
+      <TouchableOpacity
+        onPress={() => handleCompleteTask(item.id)}
+        style={styles.checkbox}
+      >
+        <Icon name={item.completed ? "check-square-o" : "square-o"} size={20} color="#fff" />
+      </TouchableOpacity>
+
       <View style={[styles.priorityLevelColors, { backgroundColor: priorityLevelColors[item.priority] }]} />
       <Text style={styles.taskText}>{item.title}</Text>
       <View style={styles.iconButton}>
         <Icon name={categoryIcons[item.category]} size={20} color="#fff" />
       </View>
-      {item.completed && <Icon name="check-circle" size={20} color="#4caf50" style={styles.completedIcon} />}
     </TouchableOpacity>
   );
 
@@ -116,8 +137,8 @@ const TaskList = ({ navigation }) => {
 
   if (loading) {
     return (
-      <View style={styles.container}>
-        <Text style={styles.loadingText}>Loading tasks...</Text>
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#959595" />
       </View>
     );
   }
@@ -204,6 +225,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#121212',
     padding: 16,
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#121212',
+  },
   section: {
     marginBottom: 20,
   },
@@ -242,17 +269,12 @@ const styles = StyleSheet.create({
     color: '#fff',
     flex: 1,
   },
-  completedIcon: {
-    marginLeft: 10,
-  },
   iconButton: {
     padding: 4,
     marginLeft: 8,
   },
-  loadingText: {
-    color: '#fff',
-    fontSize: 18,
-    textAlign: 'center',
+  checkbox: {
+    marginRight: 8,
   },
 });
 
