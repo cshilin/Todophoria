@@ -6,6 +6,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { onAuthStateChanged } from 'firebase/auth';
 import { FIREBASE_AUTH } from './src/services/firebaseConfig';
+import 'react-native-gesture-handler';
 
 import { Home, Search, AddTask, TaskList, Settings, Onboard, Register, Login, TaskDetails, PomodoroTimer, ChangePassword } from './src/screens';
 

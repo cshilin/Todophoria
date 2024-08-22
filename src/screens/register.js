@@ -32,7 +32,6 @@ const Register = ({ navigation }) => {
           });
 
         console.log('User account created');
-        navigation.navigate('Login');
       } catch (error) {
         Alert.alert('Registration Error', error.message);
       }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   View, 
   Text, 
@@ -8,7 +8,7 @@ import {
   FlatList, 
   SafeAreaView 
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../services/firebaseConfig';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -25,10 +25,11 @@ const Search = () => {
   const priorities = ['Low', 'Medium', 'High'];
   const categories = ['Personal', 'Work', 'Study', 'Health', 'Shopping', 'Other'];
 
-  useEffect(() => {
-    fetchTasks();
-  }, []);
-
+  useFocusEffect(
+    useCallback(() => {
+      fetchTasks();
+    }, [])
+  );
   const fetchTasks = async () => {
     const user = FIREBASE_AUTH.currentUser;
     if (user) {
