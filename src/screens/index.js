@@ -1,0 +1,11 @@
+export { default as Home } from './home';
+export { default as Search } from './search';
+export { default as AddTask } from './addTask';
+export { default as TaskList } from './taskList';
+export { default as TaskDetails } from './taskDetails';
+export { default as PomodoroTimer } from './pomodoroTimer';
+export { default as Settings } from './settings';
+export { default as Onboard } from './onboard';
+export { default as Register } from './register';
+export { default as Login } from './login';
+export { default as ChangePassword } from './changePassword';
